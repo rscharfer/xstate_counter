@@ -4,9 +4,6 @@ import ReactDOM from "react-dom";
 
 const { log } = actions;
 
-const counterDiv = document.querySelector("#count");
-const incrementButton = document.querySelector("#increment");
-
 const machine = Machine(
   {
     initial: "mainView",
@@ -38,30 +35,41 @@ const machine = Machine(
   }
 );
 
-const service = interpret(machine);
-service.start();
-
 const app = document.querySelector("#app");
 
 class Counter extends React.Component {
   constructor(props) {
     super(props);
-    this.clickHandler = this.clickHandler.bind(this);
     this.state = {
-      count: 0,
+      current: machine.initialState,
     };
   }
-  clickHandler() {
-    const newState = service.send("INCREMENT");
-    this.setState(() => ({
-      count: newState.context.count,
-    }));
+
+  service = interpret(machine).onTransition((current) =>
+    this.setState({ current })
+  );
+
+  componentDidMount() {
+    this.service.start();
   }
+
+  componentWillUnmount() {
+    this.service.stop();
+  }
+
   render() {
+    const { current } = this.state;
+
     return (
       <>
-        <div id="count">{this.state.count}</div>
-        <button id="increment" onClick={this.clickHandler}>
+        <div id="count">{current.context.count}</div>
+        <button
+          id="increment"
+          onClick={() => {
+            const { send } = this.service;
+            send("INCREMENT");
+          }}
+        >
           Increment
         </button>
       </>
