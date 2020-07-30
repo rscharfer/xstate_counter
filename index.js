@@ -1,6 +1,7 @@
 import { Machine, assign, actions, interpret } from "xstate";
 import React from "react";
 import ReactDOM from "react-dom";
+import { useMachine } from '@xstate/react'
 
 const { log } = actions;
 
@@ -37,44 +38,61 @@ const machine = Machine(
 
 const app = document.querySelector("#app");
 
-class Counter extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      current: machine.initialState,
-    };
-  }
+// class Counter extends React.Component {
+//   constructor(props) {
+//     super(props);
+//     this.state = {
+//       current: machine.initialState,
+//     };
+//   }
 
-  service = interpret(machine).onTransition((current) =>
-    this.setState({ current })
+//   service = interpret(machine).onTransition((current) =>
+//     this.setState({ current })
+//   );
+
+//   componentDidMount() {
+//     this.service.start();
+//   }
+
+//   componentWillUnmount() {
+//     this.service.stop();
+//   }
+
+//   render() {
+//     const { current } = this.state;
+
+//     return (
+//       <>
+//         <div id="count">{current.context.count}</div>
+//         <button
+//           id="increment"
+//           onClick={() => {
+//             const { send } = this.service;
+//             send("INCREMENT");
+//           }}
+//         >
+//           Increment
+//         </button>
+//       </>
+//     );
+//   }
+// }
+
+function Counter() {
+ const [ current, send ] = useMachine(machine)
+  return (
+    <>
+      <div id="count">{current.context.count}</div>
+      <button
+        id="increment"
+        onClick={() => {
+          send("INCREMENT");
+        }}
+      >
+        Increment
+      </button>
+    </>
   );
-
-  componentDidMount() {
-    this.service.start();
-  }
-
-  componentWillUnmount() {
-    this.service.stop();
-  }
-
-  render() {
-    const { current } = this.state;
-
-    return (
-      <>
-        <div id="count">{current.context.count}</div>
-        <button
-          id="increment"
-          onClick={() => {
-            const { send } = this.service;
-            send("INCREMENT");
-          }}
-        >
-          Increment
-        </button>
-      </>
-    );
-  }
 }
 
 ReactDOM.render(<Counter />, app);
