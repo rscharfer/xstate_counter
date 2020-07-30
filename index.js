@@ -1,4 +1,7 @@
 import { Machine, assign, actions, interpret } from "xstate";
+import React from "react";
+import ReactDOM from "react-dom";
+
 const { log } = actions;
 
 const counterDiv = document.querySelector("#count");
@@ -13,9 +16,9 @@ const machine = Machine(
     states: {
       mainView: {
         on: {
+          // transition occurs on every event
           INCREMENT: {
-            target: "mainView",
-            actions: ["updateDom", "incrementCount", "log"],
+            actions: ["incrementCount", "log"],
           },
         },
       },
@@ -31,7 +34,6 @@ const machine = Machine(
       incrementCount: assign({
         count: (context) => context.count + 1,
       }),
-      updateDom: (context, event) => (counterDiv.innerHTML = context.count),
     },
   }
 );
@@ -39,4 +41,32 @@ const machine = Machine(
 const service = interpret(machine);
 service.start();
 
-incrementButton.addEventListener("click", () => service.send("INCREMENT"));
+const app = document.querySelector("#app");
+
+class Counter extends React.Component {
+  constructor(props) {
+    super(props);
+    this.clickHandler = this.clickHandler.bind(this);
+    this.state = {
+      count: 0,
+    };
+  }
+  clickHandler() {
+    const newState = service.send("INCREMENT");
+    this.setState(() => ({
+      count: newState.context.count,
+    }));
+  }
+  render() {
+    return (
+      <>
+        <div id="count">{this.state.count}</div>
+        <button id="increment" onClick={this.clickHandler}>
+          Increment
+        </button>
+      </>
+    );
+  }
+}
+
+ReactDOM.render(<Counter />, app);
