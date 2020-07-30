@@ -1,4 +1,6 @@
 import { Machine, assign, actions, interpret } from "xstate";
+import { from } from "rxjs";
+
 const { log } = actions;
 
 const counterDiv = document.querySelector("#count");
@@ -15,7 +17,7 @@ const machine = Machine(
         on: {
           INCREMENT: {
             target: "mainView",
-            actions: ["updateDom", "incrementCount", "log"],
+            actions: ["incrementCount", "log"],
           },
         },
       },
@@ -31,12 +33,14 @@ const machine = Machine(
       incrementCount: assign({
         count: (context) => context.count + 1,
       }),
-      updateDom: (context, event) => (counterDiv.innerHTML = context.count),
     },
   }
 );
 
-const service = interpret(machine);
-service.start();
+const service = interpret(machine).start();
+
+const state$ = from(service);
+
+state$.subscribe((state) => (counterDiv.innerHTML = state.context.count));
 
 incrementButton.addEventListener("click", () => service.send("INCREMENT"));
