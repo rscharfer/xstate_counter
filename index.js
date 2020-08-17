@@ -1,8 +1,10 @@
 import { Machine, assign, actions, interpret } from "xstate";
-const { log } = actions;
+import React from "react";
+import ReactDOM from "react-dom";
+import { useMachine } from "@xstate/react";
+import useMyMachine from "./useMyMachine";
 
-const counterDiv = document.querySelector("#count");
-const incrementButton = document.querySelector("#increment");
+const { log } = actions;
 
 const machine = Machine(
   {
@@ -13,9 +15,9 @@ const machine = Machine(
     states: {
       mainView: {
         on: {
+          // transition occurs on every event
           INCREMENT: {
-            target: "mainView",
-            actions: ["updateDom", "incrementCount", "log"],
+            actions: ["incrementCount", "log"],
           },
         },
       },
@@ -31,12 +33,68 @@ const machine = Machine(
       incrementCount: assign({
         count: (context) => context.count + 1,
       }),
-      updateDom: (context, event) => (counterDiv.innerHTML = context.count),
     },
   }
 );
 
-const service = interpret(machine);
-service.start();
+const app = document.querySelector("#app");
 
-incrementButton.addEventListener("click", () => service.send("INCREMENT"));
+// class Counter extends React.Component {
+//   constructor(props) {
+//     super(props);
+//     this.state = {
+//       current: machine.initialState,
+//     };
+//   }
+
+//   service = interpret(machine).onTransition((current) =>
+//     this.setState({ current })
+//   );
+
+//   componentDidMount() {
+//     this.service.start();
+//   }
+
+//   componentWillUnmount() {
+//     this.service.stop();
+//   }
+
+//   render() {
+//     const { current } = this.state;
+
+//     return (
+//       <>
+//         <div id="count">{current.context.count}</div>
+//         <button
+//           id="increment"
+//           onClick={() => {
+//             const { send } = this.service;
+//             send("INCREMENT");
+//           }}
+//         >
+//           Increment
+//         </button>
+//       </>
+//     );
+//   }
+// }
+
+function Counter() {
+  const [ state, send ] = useMachine(machine);
+  console.log('state is', state);
+  return (
+    <>
+      <div id="count">{state.context.count}</div>
+      <button
+        id="increment"
+        onClick={() => {
+          send("INCREMENT");
+        }}
+      >
+        Increment
+      </button>
+    </>
+  );
+}
+
+ReactDOM.render(<Counter />, app);
