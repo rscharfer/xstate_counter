@@ -1,21 +1,25 @@
-import { Machine, assign, actions, interpret } from "xstate";
+import { Machine, assign } from "xstate";
 import React from "react";
 import ReactDOM from "react-dom";
 import { useMachine } from "@xstate/react";
-import useMyMachine from "./useMyMachine";
 
-const { log } = actions;
-
+// defines the finite state machine + state chart
 const machine = Machine(
   {
+    // initial state is "mainView"
     initial: "mainView",
+    // we are holding the count in context
     context: {
       count: 0,
     },
+    // there is actually only one state 'mainView', which is of course the initial state
+    // when it is in this state, it responds to a single action INCREMENT
     states: {
       mainView: {
         on: {
           // transition occurs on every event
+          // this does two things as it loops on itself
+          // it increments the count and it logs
           INCREMENT: {
             actions: ["incrementCount", "log"],
           },
@@ -25,11 +29,7 @@ const machine = Machine(
   },
   {
     actions: {
-      log: log(
-        (context, event) =>
-          `The count is now ${context.count}. The event was of type ${event.type}`,
-        "LOG:"
-      ),
+      log: (context) => console.log(`The count is now ${context.count}`),
       incrementCount: assign({
         count: (context) => context.count + 1,
       }),
@@ -39,49 +39,8 @@ const machine = Machine(
 
 const app = document.querySelector("#app");
 
-// class Counter extends React.Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       current: machine.initialState,
-//     };
-//   }
-
-//   service = interpret(machine).onTransition((current) =>
-//     this.setState({ current })
-//   );
-
-//   componentDidMount() {
-//     this.service.start();
-//   }
-
-//   componentWillUnmount() {
-//     this.service.stop();
-//   }
-
-//   render() {
-//     const { current } = this.state;
-
-//     return (
-//       <>
-//         <div id="count">{current.context.count}</div>
-//         <button
-//           id="increment"
-//           onClick={() => {
-//             const { send } = this.service;
-//             send("INCREMENT");
-//           }}
-//         >
-//           Increment
-//         </button>
-//       </>
-//     );
-//   }
-// }
-
 function Counter() {
-  const [ state, send ] = useMachine(machine);
-  console.log('state is', state);
+  const [state, send] = useMachine(machine);
   return (
     <>
       <div id="count">{state.context.count}</div>
