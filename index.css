@@ -1,0 +1,35 @@
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+output {
+  font-size: 200%;
+  border: 1px solid #aaa;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #555;
+  text-align: center;
+}
+
+button {
+  padding: 0 1rem;
+  border-radius: .25rem;
+  border: none;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #41aaf3;
+  height: 2rem;
+  font-size: 100%;
+  cursor: pointer;
+}

@@ -2,6 +2,7 @@ import { Machine, assign } from "xstate";
 import React from "react";
 import ReactDOM from "react-dom";
 import { useMachine } from "@xstate/react";
+import "./index.css";
 
 // defines the finite state machine + state chart
 const machine = Machine(
@@ -41,18 +42,19 @@ const app = document.querySelector("#app");
 
 function Counter() {
   const [state, send] = useMachine(machine);
+  const counter = () => send("INCREMENT");
   return (
-    <>
-      <div id="count">{state.context.count}</div>
-      <button
-        id="increment"
-        onClick={() => {
-          send("INCREMENT");
-        }}
-      >
+    // use sections if they are going to appear in the outline of your document
+    // we will add additional sections for different implementations
+    // sections should typically have an header, which would be what it is called in the outline
+
+    <section>
+      <h2>A React Implementation</h2>
+      <output id="count">{state.context.count}</output>
+      <button id="increment" onClick={counter}>
         Increment
       </button>
-    </>
+    </section>
   );
 }
 
