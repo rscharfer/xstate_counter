@@ -1,7 +1,8 @@
 import { Machine, assign, actions, interpret } from "xstate";
 import React from "react";
 import ReactDOM from "react-dom";
-import { useMachine } from '@xstate/react'
+import { useMachine } from "@xstate/react";
+import useMyMachine from "./useMyMachine";
 
 const { log } = actions;
 
@@ -79,10 +80,11 @@ const app = document.querySelector("#app");
 // }
 
 function Counter() {
- const [ current, send ] = useMachine(machine)
+  const [ state, send ] = useMachine(machine);
+  console.log('state is', state);
   return (
     <>
-      <div id="count">{current.context.count}</div>
+      <div id="count">{state.context.count}</div>
       <button
         id="increment"
         onClick={() => {
